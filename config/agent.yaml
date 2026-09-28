@@ -1,0 +1,39 @@
+# Agent Manifest — AgentRegistry entry point
+# This file is required for AgentRegistry auto-discovery (lazy-load architecture)
+
+id: "RET-C2-620"
+name: "RetailGiftRegistryFulfillmentComplianceQAAgent"
+namespace: "ret"
+version: "0.1.0"
+enabled: true
+category: "Cat 2"
+generation_mode: "llm"
+industry: "RET"
+
+# Level 2 base agent type
+base_type: "ChatAgent"  # RAGAgent | ChatAgent | ReActAgent | DocGenerationAgent
+
+# Entry point
+class: "src.graph.graph.RetailGiftRegistryFulfillmentComplianceQAAgent"
+
+# advisory_only (architect spec): this agent never issues a binding legal
+# ruling. Consumer Contract Act questions are always escalated, never
+# resolved (see docs/02_design.md "advisory_only guarantee"). Informational
+# contract flag for the calling orchestrator — enforcement is the
+# deterministic escalation-only behavior in
+# src/services/compliance_gate_service.py::ConsumerContractActCheckNode.
+advisory_only: true
+
+# Security
+required_trust_level: "VERIFIED_EXTERNAL"
+
+# Dependencies — the LLM secret is optional: step 6 (ResponseGenerateNode)
+# has a fully deterministic, KB-grounded fallback when config.llm is None
+# (see docs/07_operation_guide.md Environment Variables / Configuration).
+# Declared here so the standalone server's ANTHROPIC_API_KEY lookup has a
+# manifest-level home when a deployment does choose to configure it.
+requires:
+  secrets:
+    - ANTHROPIC_API_KEY
+  extras:
+    - anthropic
